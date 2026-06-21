@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Loader2, User as UserIcon, UserPlus, ArrowLeft } from 'lucide-react';
+import { Loader2, User as UserIcon, UserPlus, Search as SearchIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchUserByEmail } from '../services/userService';
 import { sendFriendRequest } from '../services/relationshipService';
@@ -94,19 +94,13 @@ export const Search: React.FC = () => {
     <div className="flex flex-col h-full w-full relative bg-[#121212]">
       {/* App Bar */}
       <div className="flex items-center px-4 py-3 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="mr-5 text-slate-300 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={26} />
-        </button>
-        <h1 className="text-[20px] font-bold text-white leading-tight">New chat</h1>
+        <h1 className="text-[20px] font-bold text-white leading-tight">Search</h1>
       </div>
 
       {/* Search Input Field */}
       <div className="px-4 py-3 bg-[#121212] shrink-0">
-        <form onSubmit={handleSearch} className="flex items-center relative">
-          <div className="w-full bg-[#1a222c] rounded-full px-5 py-3.5 flex items-center shadow-sm">
+        <form onSubmit={handleSearch} className="flex items-center relative gap-3">
+          <div className="flex-1 bg-[#1a222c] rounded-full px-5 py-3.5 flex items-center shadow-sm min-w-0">
             <input
               type="text"
               value={searchQuery}
@@ -114,8 +108,14 @@ export const Search: React.FC = () => {
               placeholder="Search username, name, or status"
               className="bg-transparent border-none outline-none text-white text-[15px] placeholder-slate-400 w-full"
             />
-            <button type="submit" className="hidden" disabled={isSearching || !searchQuery.trim()}></button>
           </div>
+          <button 
+            type="submit" 
+            disabled={isSearching || !searchQuery.trim()}
+            className="w-12 h-12 rounded-full bg-[#22c55e] hover:bg-[#1ea34d] flex items-center justify-center shrink-0 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <SearchIcon size={20} className="text-white" />
+          </button>
         </form>
       </div>
 
