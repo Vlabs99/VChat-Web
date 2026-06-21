@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../services/firebase';
 
 export const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -9,12 +12,59 @@ export const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Register submitted:', { name, email, password, confirmPassword });
-    // TODO: Implement Firebase Auth logic in next phase
+    setError(null);
+
+    if (!name.trim()) {
+      setError('Username is required.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Email is required.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        username: name.trim(),
+        email: email.trim(),
+        bio: "",
+        profileImage: "",
+        createdAt: Date.now()
+      });
+
+      navigate('/chat');
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already in use.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else {
+        setError('An error occurred during registration. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -27,6 +77,13 @@ export const Register: React.FC = () => {
 
       {/* Form Section */}
       <div className="flex-1 flex flex-col w-full max-w-sm mx-auto">
+        {error && (
+          <div className="mb-6 p-3 rounded bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-red-400 leading-snug">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-slate-300 ml-1" htmlFor="name">Username</label>
