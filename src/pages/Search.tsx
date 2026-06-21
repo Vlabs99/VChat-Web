@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Loader2, User as UserIcon, UserPlus, Search as SearchIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { searchUserByEmail } from '../services/userService';
 import { sendFriendRequest } from '../services/relationshipService';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,7 +15,7 @@ export const Search: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<UserProfile[] | null>(null);
   const { currentUser } = useAuthStore();
-  const navigate = useNavigate();
+  
 
   const handleAddFriend = async (peerUid: string) => {
     if (!currentUser) return;
