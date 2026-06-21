@@ -3,7 +3,7 @@ import { ArrowLeft, User, Bell, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DesktopLayout } from '../components/layout/DesktopLayout';
 import { useAuthStore } from '../store/useAuthStore';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, doc, updateDoc, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { getUserProfile } from '../services/userService';
 import type { InAppNotification } from '../types/notification';
@@ -20,6 +20,57 @@ export const Notifications: React.FC = () => {
   const [notifications, setNotifications] = useState<HydratedNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleNotificationClick = async (notif: HydratedNotification) => {
+    if (!currentUser) return;
+
+    if (!notif.isRead) {
+      setNotifications(prev => prev.map(n => 
+        n.notificationId === notif.notificationId 
+          ? { ...n, isRead: true } 
+          : n
+      ));
+
+      try {
+        const notifRef = doc(db, `users/${currentUser.uid}/notifications`, notif.notificationId);
+        await updateDoc(notifRef, {
+          isRead: true,
+          readAt: serverTimestamp()
+        });
+      } catch (err) {
+        console.error('Failed to mark notification as read:', err);
+      }
+    }
+
+    if (notif.type === 'chat_request') {
+      navigate('/pending');
+    } else if (notif.chatId) {
+      navigate('/chat', { state: { openChatId: notif.chatId } });
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    if (!currentUser) return;
+    
+    const unreadNotifs = notifications.filter(n => !n.isRead);
+    if (unreadNotifs.length === 0) return;
+
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+
+    try {
+      const batch = writeBatch(db);
+      unreadNotifs.forEach(n => {
+        const notifRef = doc(db, `users/${currentUser.uid}/notifications`, n.notificationId);
+        batch.update(notifRef, {
+          isRead: true,
+          readAt: serverTimestamp()
+        });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
 
   useEffect(() => {
     if (!currentUser) return;
@@ -59,17 +110,27 @@ export const Notifications: React.FC = () => {
   const listPanel = (
     <div className="flex flex-col h-full w-full relative bg-[#121212]">
       {/* Secondary App Bar */}
-      <div className="flex items-center px-4 py-3 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
-        <button 
-          onClick={() => navigate(-1)} 
-          className="mr-5 text-slate-300 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={26} />
-        </button>
-        <div className="flex flex-col">
-          <h1 className="text-xl font-bold text-white leading-tight">Notifications</h1>
-          <span className="text-[13px] text-slate-400 font-medium">VChat</span>
+      <div className="flex items-center justify-between px-4 py-3 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
+        <div className="flex items-center">
+          <button 
+            onClick={() => navigate(-1)} 
+            className="mr-5 text-slate-300 hover:text-white transition-colors"
+          >
+            <ArrowLeft size={26} />
+          </button>
+          <div className="flex flex-col">
+            <h1 className="text-xl font-bold text-white leading-tight">Notifications</h1>
+            <span className="text-[13px] text-slate-400 font-medium">VChat</span>
+          </div>
         </div>
+        {notifications.some(n => !n.isRead) && (
+          <button 
+            onClick={handleMarkAllRead}
+            className="text-[14px] text-[#22c55e] hover:text-[#1ea34d] font-medium transition-colors"
+          >
+            Mark all read
+          </button>
+        )}
       </div>
 
       {/* Main Content Area */}
@@ -94,6 +155,7 @@ export const Notifications: React.FC = () => {
             {notifications.map((notif) => (
               <div 
                 key={notif.notificationId} 
+                onClick={() => handleNotificationClick(notif)}
                 className="w-full bg-[#1a222c] rounded-2xl p-4 flex items-start gap-4 border border-slate-700/50 shadow-sm cursor-pointer hover:bg-[#1f2937] transition-colors"
               >
                 

@@ -5,6 +5,7 @@ export interface InAppNotification {
   body: string;
   fromUserId: string;
   isRead: boolean;
+  readAt?: number | any;
   createdAt: number | any;
   chatId?: string;
 }
