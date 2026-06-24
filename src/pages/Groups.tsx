@@ -75,28 +75,22 @@ export const Groups: React.FC = () => {
   const listPanel = (
     <div className="flex flex-col h-full w-full relative bg-[#121212]">
       {/* Top App Bar */}
-      <div className="flex items-center justify-between px-5 py-4 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
-        <h1 className="text-xl font-bold text-white tracking-wide">VChat</h1>
+      <div className="flex items-center justify-between px-4 lg:px-5 py-3 lg:py-3.5 bg-[#202c33] shrink-0 border-b border-slate-800/50 shadow-sm">
+        <h1 className="text-[22px] font-bold text-[#e9edef] tracking-wide">VChat</h1>
       </div>
 
-      {/* Group Search Bar & Add Button */}
-      <div className="px-4 py-3 bg-[#121212] flex items-center gap-3 shrink-0">
-        <div className="flex-1 bg-[#1e293b] rounded-full flex items-center px-4 h-12 border border-slate-700/50">
+      {/* Search Bar */}
+      <div className="px-3 lg:px-4 py-2 lg:py-3 bg-[#111b21] flex items-center gap-2 shrink-0 border-b border-slate-800/50">
+        <div className="flex-1 bg-[#202c33] rounded-full px-4 py-2 flex items-center shadow-sm relative">
+          <Search size={20} className="text-[#8696a0] mr-3 shrink-0" />
           <input
             type="text"
             placeholder="Search groups"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent border-none outline-none text-white text-[15px] placeholder-slate-400 w-full"
+            className="bg-transparent border-none outline-none text-[#e9edef] text-[15px] placeholder-[#8696a0] w-full"
           />
         </div>
-        {/* Make the Add Group button slightly larger than search bar height */}
-        <button 
-          onClick={() => navigate('/create-group')}
-          className="w-14 h-14 bg-[#22c55e] rounded-full flex items-center justify-center shrink-0 hover:bg-[#16a34a] transition-colors shadow-md"
-        >
-          <Plus size={26} className="text-white" strokeWidth={3} />
-        </button>
       </div>
 
       {/* Group List Content */}
@@ -131,30 +125,29 @@ export const Groups: React.FC = () => {
                 }`}
               >
                 {/* Avatar */}
-                <div className="w-[48px] h-[48px] rounded-full bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
+                <div className="w-[52px] h-[52px] rounded-full bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
                   <Users className="w-6 h-6 text-slate-400" />
                 </div>
                 
                 {/* Content */}
-                <div className="flex-grow min-w-0 pr-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-[16px] font-medium text-[#e9edef] truncate">
+                <div className="flex flex-col flex-grow min-w-0 pr-1">
+                  {/* Top Row */}
+                  <div className="flex items-center justify-between mb-0.5">
+                    <h3 className="text-[16px] font-bold text-[#e9edef] truncate mr-2">
                       {group.chatName || 'Unnamed Group'}
                     </h3>
-                    <span className="text-[12px] text-[#8696a0]">
+                    <span className="text-[11px] text-[#8696a0] shrink-0 whitespace-nowrap">
                       {group.lastMessageTimestamp ? formatTime(group.lastMessageTimestamp) : 'New'}
                     </span>
                   </div>
+                  {/* Bottom Row */}
                   <div className="flex items-center justify-between">
-                    <p className={`text-[14px] text-[#8696a0] truncate max-w-[85%] ${isMutedForUser(group, currentUser?.uid || '') ? 'opacity-80' : ''}`}>
-                      {isArchivedForUser(group, currentUser?.uid || '') && !isSelected ? '[Archived] ' : ''}
-                      {group.lastMessage ? group.lastMessage : 'No messages'}
-                    </p>
-                    <div className="flex items-center gap-1.5">
-                      {isMutedForUser(group, currentUser?.uid || '') && <VolumeX size={14} className="text-slate-500" />}
-                      <span className="text-[#22c55e] text-[9px] font-bold tracking-wider uppercase opacity-80 mt-0.5">
-                        GROUP
-                      </span>
+                    <div className="flex items-center gap-1 min-w-0">
+                      {isMutedForUser(group, currentUser?.uid || '') && <VolumeX size={14} className="text-slate-500 shrink-0" />}
+                      <p className={`text-[13px] text-[#8696a0] truncate ${isMutedForUser(group, currentUser?.uid || '') ? 'opacity-80' : ''}`}>
+                        {isArchivedForUser(group, currentUser?.uid || '') && !isSelected ? '[Archived] ' : ''}
+                        {group.lastMessage ? group.lastMessage : 'No messages'}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -187,6 +180,14 @@ export const Groups: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Floating Action Button */}
+      <button 
+        onClick={() => navigate('/create-group')}
+        className="absolute bottom-[104px] right-6 w-14 h-14 bg-[#22c55e] rounded-full flex items-center justify-center shadow-lg hover:bg-[#16a34a] transition-colors z-20"
+      >
+        <Plus size={28} className="text-[#121212]" strokeWidth={3} />
+      </button>
 
       {/* Bottom Navigation & Footer (Mobile Only) */}
       <div className="shrink-0 bg-[#121212] flex flex-col z-10 border-t border-slate-800/50 lg:hidden">
