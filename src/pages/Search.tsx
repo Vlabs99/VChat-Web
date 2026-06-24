@@ -82,21 +82,43 @@ export const Search: React.FC = () => {
     }
   };
 
-  // Helper to map backend states to Android pill text
-  const getPillState = (label?: string) => {
-    if (!label) return 'NOT FRIENDS';
-    if (label === 'FRIEND') return 'FRIEND';
-    if (label.includes('REQUEST')) return 'REQUEST PENDING';
-    return 'NOT FRIENDS';
+  const getBadgeConfig = (friendshipState?: string) => {
+    switch (friendshipState) {
+      case 'friends':
+        return { text: 'FRIEND', style: 'bg-[#1a4031] text-[#22c55e]' };
+      case 'pending_outgoing':
+      case 'pending_incoming':
+        return { text: 'PENDING', style: 'bg-[#3b2a1a] text-[#f59e0b]' };
+      case 'blocked_by_me':
+      case 'blocked_me':
+        return { text: 'BLOCKED', style: 'bg-[#3f1d1d] text-[#ef4444]' };
+      case 'removed':
+        return { text: 'REMOVED', style: 'bg-[#2a3441] text-slate-400' };
+      default:
+        return null;
+    }
+  };
+
+  const getActionConfig = (friendshipState?: string) => {
+    switch (friendshipState) {
+      case 'friends':
+        return { text: 'Friends', disabled: true };
+      case 'pending_outgoing':
+      case 'pending_incoming':
+        return { text: 'Pending', disabled: true };
+      case 'blocked_by_me':
+        return { text: 'Unblock', disabled: false };
+      case 'blocked_me':
+        return { text: 'You are blocked', disabled: true };
+      case 'removed':
+        return { text: 'Add Friend Again', disabled: false };
+      default:
+        return { text: 'Request', disabled: false };
+    }
   };
 
   const listPanel = (
     <div className="flex flex-col h-full w-full relative bg-[#121212]">
-      {/* App Bar */}
-      <div className="flex items-center px-4 py-3 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
-        <h1 className="text-[20px] font-bold text-white leading-tight">Search</h1>
-      </div>
-
       {/* Search Input Field */}
       <div className="px-4 py-3 bg-[#121212] shrink-0">
         <form onSubmit={handleSearch} className="flex items-center relative gap-3">
@@ -105,7 +127,7 @@ export const Search: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search username, name, or status"
+              placeholder="Search by email"
               className="bg-transparent border-none outline-none text-white text-[15px] placeholder-slate-400 w-full"
             />
           </div>
@@ -132,10 +154,11 @@ export const Search: React.FC = () => {
         ) : (
           <div className="w-full flex flex-col gap-3">
             {searchResults.map((user) => {
-              const pillState = getPillState(user.stateLabel);
+              const badge = getBadgeConfig(user.friendshipState);
+              const action = getActionConfig(user.friendshipState);
 
               return (
-                <div key={user.uid} className="relative w-full bg-[#1a222c] rounded-[1.25rem] p-4 flex items-start gap-4 shadow-sm">
+                <div key={user.uid} className="w-full bg-[#1a222c] rounded-[1.25rem] p-4 flex items-center gap-4 shadow-sm">
                   {/* Avatar */}
                   <div className="w-[52px] h-[52px] rounded-full bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
                     {user.profileImage ? (
@@ -145,33 +168,36 @@ export const Search: React.FC = () => {
                     )}
                   </div>
 
-                  {/* User Info */}
-                  <div className="flex flex-col flex-grow min-w-0 pr-24 mt-0.5">
-                    <span className="text-[16px] font-bold text-white mb-0.5 truncate">{user.username}</span>
-                    <span className="text-[13px] text-slate-400 leading-snug break-all">{user.email}</span>
-                    <span className="text-[13px] text-slate-400 leading-snug truncate mt-0.5">
+                  {/* User Info & Badge */}
+                  <div className="flex flex-col flex-grow min-w-0 justify-center">
+                    <span className="text-[16px] font-bold text-white mb-0.5 truncate leading-tight">
+                      {user.username}
+                    </span>
+                    <span className="text-[13px] text-slate-400 leading-snug truncate">
                       {user.isOnline ? 'Online' : 'Last seen today at 06:31 PM'}
                     </span>
+                    {badge && (
+                      <div className="mt-1.5">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ${badge.style}`}>
+                          {badge.text}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Relationship Pill */}
-                  <div className="absolute top-4 right-4 z-10">
-                    {pillState === 'FRIEND' ? (
-                      <span className="inline-block px-2.5 py-1 bg-[#1a4031] text-[#22c55e] font-bold text-[10px] tracking-wider rounded-md uppercase cursor-default">
-                        FRIEND
-                      </span>
-                    ) : pillState === 'REQUEST PENDING' ? (
-                      <span className="inline-block px-2.5 py-1 bg-[#2a3441] text-slate-300 font-bold text-[10px] tracking-wider rounded-md uppercase cursor-default">
-                        REQUEST PENDING
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleAddFriend(user.uid)}
-                        className="inline-block px-2.5 py-1 bg-[#2a3441] hover:bg-slate-700 text-slate-300 font-bold text-[10px] tracking-wider rounded-md uppercase transition-colors"
-                      >
-                        NOT FRIENDS
-                      </button>
-                    )}
+                  {/* Action Button */}
+                  <div className="shrink-0 flex items-center justify-end">
+                    <button
+                      onClick={() => !action.disabled && handleAddFriend(user.uid)}
+                      disabled={action.disabled}
+                      className={`px-3 py-1.5 font-bold text-[11px] tracking-wider rounded-md uppercase transition-colors ${
+                        action.disabled
+                          ? 'bg-transparent text-slate-500'
+                          : 'bg-[#2a3441] hover:bg-slate-700 text-slate-300'
+                      }`}
+                    >
+                      {action.text}
+                    </button>
                   </div>
                 </div>
               );
