@@ -330,6 +330,18 @@ export const Chat: React.FC = () => {
         <h1 className="text-[22px] font-bold text-[#e9edef] tracking-wide">VChat</h1>
       </div>
 
+      {/* Search Bar */}
+      <div className="px-3 lg:px-4 py-2 lg:py-3 bg-[#111b21] flex items-center gap-2 shrink-0 border-b border-slate-800/50">
+        <div className="flex-1 bg-[#202c33] rounded-full px-4 py-2 flex items-center shadow-sm relative">
+          <Search size={20} className="text-[#8696a0] mr-3 shrink-0" />
+          <input
+            type="text"
+            placeholder="Search or start a new chat"
+            className="bg-transparent border-none outline-none text-[#e9edef] text-[15px] placeholder-[#8696a0] w-full"
+          />
+        </div>
+      </div>
+
       {/* Chat List Content */}
       <div className="flex-1 overflow-y-auto bg-[#111b21] custom-scrollbar pb-24 lg:pb-0">
         {loadingChats ? (
@@ -358,7 +370,7 @@ export const Chat: React.FC = () => {
                 }`}
               >
                 {/* Avatar */}
-                <div className="w-[48px] h-[48px] rounded-full bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
+                <div className="w-[52px] h-[52px] rounded-full bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
                   {chat.isGroup ? (
                     <Users className="w-6 h-6 text-slate-400" />
                   ) : chat.resolvedParticipant?.profileImage ? (
@@ -369,25 +381,29 @@ export const Chat: React.FC = () => {
                 </div>
                 
                 {/* Content */}
-                <div className="flex-grow min-w-0 pr-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-[16px] font-medium text-[#e9edef] truncate">
-                      {chat.chatName || (chat.isGroup ? 'Unnamed Group' : (chat.resolvedParticipant?.username || 'Direct Message'))}
-                    </h3>
-                    <span className="text-[12px] text-[#8696a0]">
+                <div className="flex flex-col flex-grow min-w-0 pr-1">
+                  {/* Top Row */}
+                  <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center min-w-0 mr-2">
+                      <h3 className="text-[16px] font-bold text-[#e9edef] truncate">
+                        {chat.chatName || (chat.isGroup ? 'Unnamed Group' : (chat.resolvedParticipant?.username || 'Direct Message'))}
+                      </h3>
+                      {!chat.isGroup && chat.resolvedParticipant?.isOnline && (
+                        <div className="w-2 h-2 bg-[#22c55e] rounded-full shrink-0 ml-1.5" />
+                      )}
+                    </div>
+                    <span className="text-[11px] text-[#8696a0] shrink-0 whitespace-nowrap">
                       {chat.lastMessageTimestamp ? formatTime(chat.lastMessageTimestamp) : 'New'}
                     </span>
                   </div>
+                  {/* Bottom Row */}
                   <div className="flex items-center justify-between">
-                    <p className={`text-[14px] text-[#8696a0] truncate max-w-[85%] ${isMutedForUser(chat, currentUser?.uid || '') ? 'opacity-80' : ''}`}>
-                      {isArchivedForUser(chat, currentUser?.uid || '') && (!isSelected || !isPeerTyping) ? '[Archived] ' : ''}
-                      {chat.lastMessage ? chat.lastMessage : 'No messages'}
-                    </p>
-                    <div className="flex items-center gap-1.5">
-                      {isMutedForUser(chat, currentUser?.uid || '') && <VolumeX size={14} className="text-slate-500" />}
-                      <span className="text-[#22c55e] text-[9px] font-bold tracking-wider uppercase opacity-80 mt-0.5">
-                        {chat.isGroup ? 'GROUP' : 'FRIEND'}
-                      </span>
+                    <div className="flex items-center gap-1 min-w-0">
+                      {isMutedForUser(chat, currentUser?.uid || '') && <VolumeX size={14} className="text-slate-500 shrink-0" />}
+                      <p className={`text-[13px] text-[#8696a0] truncate ${isMutedForUser(chat, currentUser?.uid || '') ? 'opacity-80' : ''}`}>
+                        {isArchivedForUser(chat, currentUser?.uid || '') && (!isSelected || !isPeerTyping) ? '[Archived] ' : ''}
+                        {chat.lastMessage ? chat.lastMessage : 'No messages'}
+                      </p>
                     </div>
                   </div>
                 </div>
