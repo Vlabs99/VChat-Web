@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, ClipboardList, MoreVertical, MessageSquare, Users, User as UserIcon, Plus, Loader2, AlertCircle, ArrowLeft, VolumeX } from 'lucide-react';
+import { Search, MessageSquare, Users, User as UserIcon, Plus, Loader2, AlertCircle, ArrowLeft, VolumeX, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { DesktopLayout } from '../components/layout/DesktopLayout';
 import { useAuthStore } from '../store/useAuthStore';
@@ -77,14 +77,6 @@ export const Groups: React.FC = () => {
       {/* Top App Bar */}
       <div className="flex items-center justify-between px-5 py-4 bg-[#111827] shrink-0 shadow-sm border-b border-slate-800/50">
         <h1 className="text-xl font-bold text-white tracking-wide">VChat</h1>
-        <div className="flex items-center gap-6 text-slate-300">
-          <div className="relative cursor-pointer">
-            <Bell size={22} />
-            {/* Optional notification dot */}
-          </div>
-          <ClipboardList size={22} className="cursor-pointer" />
-          <MoreVertical size={22} className="cursor-pointer" />
-        </div>
       </div>
 
       {/* Group Search Bar & Add Button */}

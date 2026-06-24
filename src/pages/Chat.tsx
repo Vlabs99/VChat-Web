@@ -3,7 +3,7 @@ import { useAuthStore } from '../store/useAuthStore';
 
 import { collection, query, orderBy, onSnapshot, writeBatch, doc } from 'firebase/firestore';
 import { db } from '../services/firebase';
-import { User as UserIcon, Loader2, AlertCircle, MessageSquare, Users, Search, Bell, ClipboardList, MoreVertical, Mail, ArrowLeft, X, VolumeX } from 'lucide-react';
+import { User as UserIcon, Loader2, AlertCircle, MessageSquare, Users, Search, Mail, ArrowLeft, X, VolumeX, MoreVertical } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { subscribeToUserChats, archiveChat, unarchiveChat, isArchivedForUser, isMutedForUser, ensureDirectChat } from '../services/chatService';
 import type { ChatMetadata } from '../types/chat';
@@ -37,18 +37,7 @@ export const Chat: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const [isChatsMenuOpen, setIsChatsMenuOpen] = useState(false);
-  const chatsMenuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (chatsMenuRef.current && !chatsMenuRef.current.contains(e.target as Node)) {
-        setIsChatsMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
   
   
   
@@ -338,53 +327,7 @@ export const Chat: React.FC = () => {
     <div className="flex flex-col h-full w-full relative bg-[#111b21]">
       {/* Top App Bar */}
       <div className="flex items-center justify-between px-4 lg:px-5 py-3 lg:py-3.5 bg-[#202c33] shrink-0 border-b border-slate-800/50 shadow-sm">
-        <h1 className="text-[22px] font-bold text-[#e9edef] tracking-wide">Chats</h1>
-        <div className="flex items-center gap-5 text-[#aebac1]">
-          <Search size={22} className="cursor-pointer hover:text-[#e9edef] lg:hidden" />
-          <div className="relative cursor-pointer lg:hidden">
-            <Bell size={22} />
-            <div className="absolute top-0 right-0 w-2 h-2 bg-[#22c55e] rounded-full"></div>
-          </div>
-          <ClipboardList size={22} className="cursor-pointer hover:text-[#e9edef]" />
-          <div className="relative flex items-center justify-center" ref={chatsMenuRef}>
-            <MoreVertical 
-              size={22} 
-              className="cursor-pointer hover:text-[#e9edef]" 
-              onClick={() => setIsChatsMenuOpen(!isChatsMenuOpen)}
-            />
-            {isChatsMenuOpen && (
-              <div className="absolute right-0 top-8 bg-[#233138] rounded shadow-lg py-2 min-w-[160px] text-[14px] text-[#d1d7db] z-50">
-                <div 
-                  className="px-4 py-2 hover:bg-[#182229] cursor-pointer"
-                  onClick={() => {
-                    setIsChatsMenuOpen(false);
-                    navigate('/pending');
-                  }}
-                >
-                  Pending requests
-                </div>
-                <div 
-                  className="px-4 py-2 hover:bg-[#182229] cursor-pointer"
-                  onClick={() => {
-                    setIsChatsMenuOpen(false);
-                    navigate('/notifications');
-                  }}
-                >
-                  Notifications
-                </div>
-                <div 
-                  className="px-4 py-2 hover:bg-[#182229] cursor-pointer"
-                  onClick={() => {
-                    setIsChatsMenuOpen(false);
-                    navigate('/starred');
-                  }}
-                >
-                  Starred messages
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <h1 className="text-[22px] font-bold text-[#e9edef] tracking-wide">VChat</h1>
       </div>
 
       {/* Chat List Content */}
